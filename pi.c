@@ -29,48 +29,34 @@ in_circle(double x, double y)
 }
 
 double
-rand_double(unsigned int *seed)
-{
-	/* Return a random number in the range [0.0,1.0] */
-	return (double)rand_r(seed)/(double)(RAND_MAX);
-}
-
-double
 estimate_pi()
 {
-	uint64_t result = 0;
-#pragma omp parallel
+	int rank;
+	uint64_t inside = 0, i;
+	uint64_t it = n;
+	double x, y;
+	struct drand48_data myseed;
+
+	if (over_p)
+		it*=p;
+	printf("it: %ld\n", it);
+
+#pragma omp parallel default(none) \
+	private(i, myseed, x, y, rank) shared(inside, n, it, p, over_p)
 	{
-		/* These variables are private */
-		int rank = omp_get_thread_num();
-		uint64_t inside = 0, i;
-		uint64_t it = n;
-		double x, y;
-		unsigned int myseed = rank*HUGE_PRIME + time(NULL);
+		rank = omp_get_thread_num();
+		srand48_r(rank*HUGE_PRIME + time(NULL), &myseed);
 
-		/* n fixeed, not n/p fixed. */
-		if (!over_p)
-			it /= p;
-
+#pragma omp for reduction(+:inside)
 		for (i = 0; i < it; i++) {
-			x = rand_double(&myseed);
-			y = rand_double(&myseed);
+			drand48_r(&myseed, &x);
+			drand48_r(&myseed, &y);
 
 			if (in_circle(x, y)) {
 				inside++;
 			}
-			if (inside < 0) {
-				printf("OVERFLOW! Iteration %ld\n", i);
-			}
-		}
-#pragma omp critical
-		{
-			result += inside;
 		}
 	}
 
-	if (over_p)
-		return (((double)result)/((uint64_t)n*(uint64_t)p))*4;
-	else
-		return (((double)result)/(uint64_t)n)*4;
+	return (((double)inside)/it)*4;
 }

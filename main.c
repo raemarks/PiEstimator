@@ -3,20 +3,19 @@
 #include <string.h>
 #include <assert.h>
 #include <time.h>
-
 #include <omp.h>
 
 #include "pi.h"
 
 int n;
 int p;
-bool over_p;
+bool over_p = false;
 
 int main(int argc, char *argv[])
-	//TODO: make sure to use the omp time thing.
 {
 	double pi, runtime;
 	struct timeval t1, t2;
+	double true_pi = 3.14159265358979;
 
 	assert(argc >= 4);
 
@@ -31,11 +30,12 @@ int main(int argc, char *argv[])
 	pi = estimate_pi();
 	gettimeofday(&t2, NULL);
 
-	runtime = (t2.tv_sec-t1.tv_sec)*1000 +
-	    ((double) t2.tv_usec-t1.tv_usec)/1000;
+	runtime = (t2.tv_sec-t1.tv_sec) +
+	    ((double) t2.tv_usec-t1.tv_usec)/1000000;
 
 	printf("Estimate: %.20lf\n", pi);
-	printf("Runtime: %lf ms\n", runtime);
+	printf("Difference: %.20lf\n", pi-true_pi);
+	printf("Runtime: %lf s\n", runtime);
 
 	return 0;
 }
