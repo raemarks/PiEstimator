@@ -9,14 +9,14 @@
 #include "mp_constants.h"
 #include "pi.h"
 
-const double center_x = 0.5;
-const double center_y = 0.5;
 
 #define HUGE_PRIME 217645177
 
 bool
 in_circle(double x, double y)
 {
+	const double center_x = 0.5;
+	const double center_y = 0.5;
 	double distance = 0;
 
 	distance = (x-center_x)*(x-center_x) + (y-center_y)*(y-center_y);
@@ -26,13 +26,6 @@ in_circle(double x, double y)
 		return true;
 
 	return false;
-}
-
-double
-rand_double(unsigned int *seed)
-{
-	/* Return a random number in the range [0.0,1.0] */
-	return (double)rand_r(seed)/(double)(RAND_MAX);
 }
 
 double
@@ -46,21 +39,20 @@ estimate_pi()
 		uint64_t inside = 0, i;
 		uint64_t it = n;
 		double x, y;
-		unsigned int myseed = rank*HUGE_PRIME + time(NULL);
+		struct drand48_data myseed;
+		srand48_r(rank*HUGE_PRIME, &myseed);
 
-		/* n fixeed, not n/p fixed. */
-		if (!over_p)
+		/* n fixed, not n/p fixed. */
+		if (!over_p) {
 			it /= p;
+		}
 
 		for (i = 0; i < it; i++) {
-			x = rand_double(&myseed);
-			y = rand_double(&myseed);
+			drand48_r(&myseed, &x);
+			drand48_r(&myseed, &y);
 
 			if (in_circle(x, y)) {
 				inside++;
-			}
-			if (inside < 0) {
-				printf("OVERFLOW! Iteration %ld\n", i);
 			}
 		}
 #pragma omp critical

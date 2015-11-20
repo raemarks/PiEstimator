@@ -2,10 +2,10 @@ all:
 	gcc -g -Wall -lm -fopenmp -o omp_pi main.c pi.c
 
 runSpeedup:
-	./omp_pi 1000000000 1 n
-	./omp_pi 1000000000 2 n
-	./omp_pi 1000000000 3 n
-	./omp_pi 1000000000 4 n
+	./omp_pi 500000000 1 n
+	./omp_pi 500000000 2 n
+	./omp_pi 500000000 3 n
+	./omp_pi 500000000 4 n
 
 runPrecision:
 	./omp_pi 1000000000 1 y

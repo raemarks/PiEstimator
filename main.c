@@ -21,8 +21,14 @@ int main(int argc, char *argv[])
 
 	n = atoi(argv[1]);
 	p = atoi(argv[2]);
-	if (argv[3][0] == 'y')
+	if (argv[3][0] == 'y') {
+		printf("over p\n");
 		over_p = true;
+	}
+	else {
+		printf("not over p\n");
+		over_p = false;
+	}
 
 	omp_set_num_threads(p);
 
